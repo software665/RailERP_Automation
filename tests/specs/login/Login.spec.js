@@ -1,0 +1,58 @@
+
+import { test } from '@playwright/test';
+import { appUrls } from '../../../playwright.config';
+import { PageManagers } from '../../../page-manager/Page-Manager.js';
+import loginData from '../../test-data-management/login/Login.json';
+
+test.describe('RailERP Login Automation', () => {
+
+    let page;
+    let context;
+
+    test.beforeEach(async ({ browser }) => {
+
+        // Create browser context
+        context = await browser.newContext({
+            ignoreHTTPSErrors: true
+        });
+
+        // Create new page
+        page = await context.newPage();
+
+        // Navigate to RailERP login
+        await page.goto(appUrls.loginURL);
+
+    });
+
+    test.afterEach(async () => {
+        await context?.close();
+    });
+
+    test('Verify Login with InValid Credentials', async () => {
+
+        const pm = new PageManagers(page);
+
+        // Valid Login
+        await pm.loginPage.invalidLogin(
+            loginData.invalidLogin.username,
+            loginData.invalidLogin.password,
+            loginData.invalidLogin.checkbox
+        );
+
+    });
+
+    test('Verify Login with Valid Credentials', async () => {
+
+        const pm = new PageManagers(page);
+
+
+        await pm.loginPage.loginPage(
+            loginData.validLogin.username,
+            loginData.validLogin.password,
+            loginData.validLogin.checkbox
+        );
+
+
+    });
+
+});

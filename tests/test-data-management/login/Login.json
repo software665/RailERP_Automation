@@ -1,0 +1,13 @@
+{
+    "validLogin":{
+        "username":"Admin",
+        "password":"SuperAdmin",
+        "checkbox":false
+    },
+    "invalidLogin":{
+        "username":"Adm",
+        "password":"SuperAdmin",
+        "checkbox":false
+
+    }
+}
