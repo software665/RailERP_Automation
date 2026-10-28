@@ -43,8 +43,6 @@ test.describe('RailERP Login Automation', () => {
 
         await stateTc.createStates();
 
-
-
     })
 
 })
