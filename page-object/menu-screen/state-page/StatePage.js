@@ -1,164 +1,277 @@
-
-import { expect } from '@playwright/test';
+import { expect } from "@playwright/test";
 
 export class StatePage {
+  constructor(page) {
+    this.page = page;
+  }
 
-    constructor(page) {
-        this.page = page;
-    }
+  /**
+   * Click Add New State and verify required fields.
+   */
+  async addNewState() {
+    await this.page
+      .getByRole("link", { name: "Add New State", exact: true })
+      .click();
 
-  
+    // Verify Add State heading
+    await expect(
+      this.page.getByRole("heading", { name: "Add State", exact: true }),
+    ).toBeVisible();
 
-    // Click Add New State and verify page
-    async addNewState() {
+    // Verify form fields
+    await expect(this.page.locator("#name")).toBeVisible();
+    await expect(this.page.locator("#code")).toBeVisible();
+    await expect(this.page.locator("#active_status")).toBeVisible();
 
-        await this.page.getByRole('link', {
-            name: 'Add New State',
-            exact: true
-        }).click();
+    // Verify Save button
+    await expect(
+      this.page.getByRole("button", { name: "Save", exact: true }),
+    ).toBeVisible();
+  }
 
-        // Verify Add State heading
-        await expect(
-            this.page.getByRole('heading', {
-                name: 'Add State',
-                exact: true
-            })
-        ).toBeVisible();
+  /**
+   * Fill State Name.
+   * @param {string} name
+   */
+  async stateName(name) {
+    await this.page.locator("#name").fill(name);
+  }
 
-        // Verify State Name field
-        await expect(this.page.locator('#name')).toBeVisible();
+  /**
+   * Fill State Code.
+   * @param {string} code
+   */
+  async stateCode(code) {
+    await this.page.locator("#code").fill(code);
+  }
 
-        // Verify Code field
-        await expect(this.page.locator('#code')).toBeVisible();
+  /**
+   * Select State Active Status.
+   * @param {string|number} status
+   */
+  async activeStatus(status) {
+    await this.page.locator("#active_status").selectOption(String(status));
+  }
 
-        // Verify Active Status dropdown
-        await expect(this.page.locator('#active_status')).toBeVisible();
+  /**
+   * Click Save button.
+   */
+  async saveState() {
+    // Click Save button
+    await this.page.getByRole("button", { name: "Save", exact: true }).click();
 
-        // Verify Save button
-        await expect(
-            this.page.getByRole('button', {
-                name: 'Save',
-                exact: true
-            })
-        ).toBeVisible();
-    }
+    // Verify State created successfully
+    const successMessage = this.page.getByText("State created successfully.", {
+      exact: true,
+    });
+    await expect(successMessage).toBeVisible({ timeout: 10000 });
 
-    // Fill State Name
-    async stateName(name) {
-        await this.page.locator('#name').fill(name);
-    }
+    // Dismiss success notification
+    await this.page
+      .getByRole("button", { name: "Dismiss notification", exact: true })
+      .click();
+  }
 
-    // Fill State Code
-    async stateCode(code) {
-        await this.page.locator('#code').fill(code);
-    }
+  /**
+   * Search State by name.
+   * @param {string} stateName
+   */
+  async searchState(stateName) {
+    const searchInput = this.page.locator('input[type="text"].w-56');
 
-    // Select Active Status
-    async activeStatus(status) {
-        await this.page.locator('#active_status').selectOption(String(status))
-    }
+    await expect(searchInput).toBeVisible();
 
-    // Click Save
-    async saveState() {
-        await this.page.getByRole('button', {name: 'Save',exact: true}).click();
-    }
+    await searchInput.fill("");
 
-    // Complete Add State flow
-    async createState(name, code, status) {
+    await searchInput.fill(stateName);
 
-        await this.State();
+    await expect(searchInput).toHaveValue(stateName);
+  }
 
-        await this.addNewState();
+  /**
+   * Locate matching State table row.
+   * @param {string} stateName
+   */
+  stateRow(stateName) {
+    return this.page.locator(".index-list-datatable tbody tr").filter({
+      has: this.page
+        .locator("td:nth-child(2)")
+        .getByText(stateName, { exact: true }),
+    });
+  }
 
-        await this.stateName(name);
-
-        await this.stateCode(code);
-
-        await this.activeStatus(status);
-
-        await this.saveState();
-    }
-
-       // Search created State Name
-    async searchState(stateName) {
-
-        const searchInput = this.page.locator('input[type="text"].w-56');
-
-        await expect(searchInput).toBeVisible();
-
-        await searchInput.fill(stateName);
-
-        await expect(searchInput).toHaveValue(stateName);
-    }
-
-        // Find matching table row
-    stateRow(stateName) {
-
-        return this.page.locator(
-            '.index-list-datatable tbody tr'
-        ).filter({
-            has: this.page.locator('td:nth-child(2)')
-                .getByText(stateName, { exact: true })
-        });
-    }
-
-    async stateListAssert(stateName, stateCode) {
-
-        await this.searchState(stateName);
-
-        const row = this.stateRow(stateName);
-
-        await expect(row).toHaveCount(1);
-
-        // State Name
-        await expect(row.locator('td:nth-child(2)')).toHaveText(stateName);
-
-        // State Code
-        await expect( row.locator('td:nth-child(3)')).toHaveText(stateCode);
-
-        // Districts count
-        await expect(row.locator('td:nth-child(4)')).toHaveText(/^\d+$/);
-
-    }
-
-    
-async stateActions(stateName, action) {
+  /**
+   * Verify created State in listing.
+   *
+   * @param {string} stateName
+   * @param {string} stateCode
+   */
+  async stateListAssert(stateName, stateCode) {
+    await this.searchState(stateName);
 
     const row = this.stateRow(stateName);
 
     await expect(row).toHaveCount(1);
 
+    // Verify State Name
+    await expect(row.locator("td:nth-child(2)")).toHaveText(stateName);
+
+    // Verify State Code
+    await expect(row.locator("td:nth-child(3)")).toHaveText(stateCode);
+
+    // Verify Districts count
+    await expect(row.locator("td:nth-child(4)")).toHaveText(/^\d+$/);
+  }
+
+  /**
+   * Performs Edit, Delete, or View action on a State.
+   *
+   * @param {string} stateName - State Name.
+   * @param {string} action - edit, delete, or view.
+   * @param {string} code - Expected State Code.
+   * @param {string} status - Expected State Status.
+   *
+   * @throws {Error} If an invalid action is provided.
+   */
+  async stateActions(stateName, action, code, status ,newStateName ,newStateCode) {
+    const row = this.stateRow(stateName);
+
+    await expect(row).toHaveCount(1);
+
     switch (action.toLowerCase()) {
+        case "edit":
+        await this.page.waitForTimeout(4000);
+        await row.getByRole("link", { name: `Edit ${stateName}`, exact: true }).click();
+        await this.editRecord(stateName, newStateName, newStateCode)
+        break;
+        case "delete":
+        await row.getByRole("button", { name: `Delete ${stateName}`, exact: true }).click();
+        await this.clickDelete();
+        break;
+        case "view":
+        await this.page.waitForTimeout(4000);
+        // Click View icon
+        const viewLink = row.locator(`a[aria-label="View ${stateName}"]`);
+        await viewLink.waitFor({ state: "visible" });
+        await viewLink.click();
 
-        case 'edit':await row.getByRole('link', {name: `Edit ${stateName}`,exact: true}).click();
-            break;
+        await this.viewRecord(stateName, code, status);
+        break;
 
-        case 'delete': await row.getByRole('button', {name: `Delete ${stateName}`,exact: true}).click();
-                    await this.clickDelete();
-                    
-            break;
-
-        case 'view': await row.getByRole('link', {name: `View ${stateName}`,exact: true}).click();
-            break;
-
-        default:
-            throw new Error(`Invalid State Action: ${action}`);
+      default:
+        throw new Error(`Invalid State Action: ${action}`);
     }
+  }
+
+  /**
+   * Verify State details on View page.
+   *
+   * @param {string} stateName - Expected State Name.
+   * @param {string} code - Expected State Code.
+   * @param {string} status - Expected Status (Active / Inactive).
+   */
+  async viewRecord(stateName, code, status) {
+    // Find State Row using dynamically generated State Name
+    const row = this.stateRow(stateName);
+
+    await expect(row).toHaveCount(1);
+
+    // Locate State details card
+    const card = this.page
+      .locator("div.rounded-xl.border")
+      .filter({ has: this.page.getByText(stateName, { exact: true }) });
+
+    await card.waitFor({ state: "visible" });
+
+    // Verify State details card
+    await expect(card).toHaveCount(1);
+    await expect(card).toBeVisible();
+
+    // Verify State Name
+    await expect(card.getByText(stateName, { exact: true })).toBeVisible();
+
+    // Verify State Code
+    await expect(card.getByText(code, { exact: true })).toBeVisible();
+
+    // Verify State Status
+    await expect(card.getByText(status, { exact: true })).toBeVisible();
+
+    // Back to State List
+    await this.backToList();
+  }
+
+  /**
+ * Edit an existing State record.
+ *
+ * @param {string} stateName - Existing State Name.
+ * @param {string} newStateName - New State Name.
+ * @param {string} newStateCode - New State Code.
+ */
+async editRecord(stateName, newStateName, newStateCode) {
+
+    // Find State row
+    const row = this.stateRow(stateName);
+    await expect(row).toHaveCount(1);
 
 
+    // Locate Edit fields
+    const stateNameInput = this.page.locator("#name");
+    const stateCodeInput = this.page.locator("#code");
+
+    // Wait for Edit form
+    await expect(stateNameInput).toBeVisible();
+    await expect(stateCodeInput).toBeVisible();
+
+    // Verify existing State Name
+    await expect(stateNameInput).toHaveValue(stateName);
+
+    // Clear and enter new State Name
+    await stateNameInput.clear();
+    await stateNameInput.fill(newStateName);
+
+    // Clear and enter new State Code
+    await stateCodeInput.clear();
+    await stateCodeInput.fill(newStateCode);
+
+    // Verify updated values
+    await expect(stateNameInput).toHaveValue(newStateName);
+    await expect(stateCodeInput).toHaveValue(newStateCode);
+
+    // Click Save changes
+    await this.page.getByRole("button", {
+        name: "Save changes",
+        exact: true
+    }).click();
 }
 
-async clickDelete() {
-  await this.page.getByRole('button', { name: 'Delete', exact: true }).click();
-  await this.verifyStateDeletedSuccessfully();
-}
-
-async verifyStateDeletedSuccessfully() {
-  await this.page.getByText('State deleted successfully.', { exact: true }).waitFor({state: 'visible',
-  });
-}
 
 
+  /**
+   * Return from View page to State List.
+   */
+  async backToList() {
+    await this.page
+      .getByRole("link", { name: "Back to List", exact: true })
+      .click();
+  }
 
+  /**
+   * Confirm State deletion.
+   */
+  async clickDelete() {
+    await this.page
+      .getByRole("button", { name: "Delete", exact: true })
+      .click();
 
+    await this.verifyStateDeletedSuccessfully();
+  }
+
+  /**
+   * Verify successful State deletion.
+   */
+  async verifyStateDeletedSuccessfully() {
+    await expect(
+      this.page.getByText("State deleted successfully.", { exact: true }),
+    ).toBeVisible();
+  }
 }

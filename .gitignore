@@ -7,6 +7,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+# Ignore Playwright codegen folder
+/tests/codegen/
 # Environment (local values / written by Jenkins); .env.example is committed
 .env
 
