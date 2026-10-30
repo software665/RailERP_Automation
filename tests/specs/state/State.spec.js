@@ -25,9 +25,15 @@ test.describe('RailERP Login Automation', () => {
 
     });
 
-    test.afterEach(async () => {
-        await context?.close();
-    });
+    //test.afterEach(async () => {
+        //await context?.close();
+   // });
+   test.afterEach(async () => {
+    if (context) {
+        await context.close();
+        context = null;
+    }
+});
 
     test('Verify State Master Screen – Create a State, Validate the Created State, and Delete the State', async () => {
 
