@@ -1,0 +1,9 @@
+{
+    "adddistrict"
+: {
+       "state id": "Tamil Nadu",
+        "districtName": "Chennai",
+        "districtCode": "code1",
+        "activeStatus": "1"
+    }
+}
