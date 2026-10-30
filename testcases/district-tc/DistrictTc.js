@@ -1,12 +1,14 @@
 
 import { PageManagers } from "../../page-manager/Page-Manager.js";
+
 import districtData from "../../tests/test-data-management/district/District.json";
+import { generateDistrictName, generateDistrictCode, createDistrict } from "../../utils/Utils1.js";
 
 import {
     generateDistrictName,
     generateDistrictCode,
     createDistrict
-} from "../../utils/Utils.js";
+} from "../../utils/Utils1.js";
 
 export class DistrictPageTC {
 
@@ -51,6 +53,7 @@ export class DistrictPageTC {
             status
         );
 
+        // Return original and updated values
         return {
             districtName,
             districtCode,
@@ -59,7 +62,7 @@ export class DistrictPageTC {
     }
 
     /**
-     * Verify District, Edit, View updated details and Delete.
+     * Verify District, Edit, View and Delete.
      *
      * @param {string} districtName - Original District Name.
      * @param {string} districtCode - Original District Code.
@@ -81,7 +84,7 @@ export class DistrictPageTC {
                     ? "In active"
                     : String(status);
 
-        // Step 2: Generate new District Name and Code
+        // Step 2: Generate new District Name and Code for Edit
         const newDistrictName = generateDistrictName(
             districtData.addDistrict.districtName
         );
@@ -107,7 +110,7 @@ export class DistrictPageTC {
             newDistrictCode
         );
 
-        // Step 5: View updated District
+        // Step 5: View updated District and verify details
         await this.pm.districtPage.districtActions(
             newDistrictName,
             "view",
@@ -115,8 +118,10 @@ export class DistrictPageTC {
             expectedStatus
         );
 
-        // Step 6: Search updated District
-        await this.pm.districtPage.searchDistrict(newDistrictName);
+        // Step 6: Search updated District after returning to List
+        await this.pm.districtPage.searchDistrict(
+            newDistrictName
+        );
 
         // Step 7: Delete updated District
         // await this.pm.districtPage.districtActions(
