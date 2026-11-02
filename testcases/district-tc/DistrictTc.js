@@ -2,7 +2,6 @@
 import { PageManagers } from "../../page-manager/Page-Manager.js";
 
 import districtData from "../../tests/test-data-management/district/District.json";
-import { generateDistrictName, generateDistrictCode, createDistrict } from "../../utils/Utils1.js";
 
 import {
     generateDistrictName,

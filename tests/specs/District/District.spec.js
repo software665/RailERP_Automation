@@ -5,7 +5,7 @@ import { PageManagers } from '../../../page-manager/Page-Manager.js';
 import loginData from '../../test-data-management/login/Login.json';
 import { DistrictPageTC } from '../../../testcases/district-tc/DistrictTc.js';
 
-test.describe('RailERP District Master Automation', () => {
+test.describe('RailERP Login Automation', () => {
 
     let page;
     let context;
