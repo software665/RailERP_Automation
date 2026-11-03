@@ -44,5 +44,6 @@ export class NavigatePages {
         await this.page.locator('a[href="/RailERP-Staging/admin/districts"]').click();
     }
 
+    
 
 }

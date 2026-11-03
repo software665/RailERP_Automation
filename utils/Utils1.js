@@ -85,7 +85,7 @@ export async function createDistrict(
     await pm.navigatepage.District();
 
     // Click Add New District
-    await pm.districtPage.addNewDistrict();
+    //await pm.districtPage.addNewDistrict();
 
     // Select Parent State
     await pm.districtPage.selectState(stateId);
