@@ -39,6 +39,10 @@ export class NavigatePages {
         await this.masters()
         await this.page.locator('a[href="/RailERP-Staging/admin/states"]').click();
     }
+    async District() {
+        await this.masters()
+        await this.page.locator('a[href="/RailERP-Staging/admin/districts"]').click();
+    }
 
 
 }

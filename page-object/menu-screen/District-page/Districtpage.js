@@ -96,6 +96,7 @@ export class DistrictPage {
     const searchInput = this.page.locator('input[type="text"].w-56');
 
     await expect(searchInput).toBeVisible();
+    await searchInput.fill("");
     await searchInput.fill(districtName);
 
     await expect(searchInput).toHaveValue(districtName);
